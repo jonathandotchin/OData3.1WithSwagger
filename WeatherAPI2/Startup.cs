@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNet.OData.Builder;
 using Microsoft.AspNet.OData.Extensions;
@@ -10,7 +9,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Net.Http.Headers;
 using Microsoft.OData.Edm;
-using Microsoft.OpenApi.Models;
 
 namespace WeatherAPI2
 {
@@ -28,10 +26,7 @@ namespace WeatherAPI2
             services.AddOData();
             services.AddControllers();
 
-            services.AddSwaggerGen(c =>
-            {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });
-            });
+            services.AddSwaggerDocument();
 
             SetOutputFormatters(services);
         }
@@ -57,12 +52,8 @@ namespace WeatherAPI2
                 endpoints.MapODataRoute("odata", "odata", GetEdmModel());
             });
 
-            app.UseSwagger();
-
-            app.UseSwaggerUI(c =>
-            {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
-            });
+            app.UseOpenApi();
+            app.UseSwaggerUi3();
         }
 
         IEdmModel GetEdmModel()
@@ -76,13 +67,23 @@ namespace WeatherAPI2
         {
             services.AddMvcCore(options =>
             {
-                IEnumerable<ODataOutputFormatter> outputFormatters =
-                    options.OutputFormatters.OfType<ODataOutputFormatter>()
-                        .Where(foramtter => foramtter.SupportedMediaTypes.Count == 0);
+                //IEnumerable<ODataOutputFormatter> outputFormatters =
+                //    options.OutputFormatters.OfType<ODataOutputFormatter>()
+                //        .Where(foramtter => foramtter.SupportedMediaTypes.Count == 0);
 
-                foreach (var outputFormatter in outputFormatters)
+                //foreach (var outputFormatter in outputFormatters)
+                //{
+                //    outputFormatter.SupportedMediaTypes.Add(new MediaTypeHeaderValue("application/odata"));
+                //}
+
+                foreach (var outputFormatter in options.OutputFormatters.OfType<ODataOutputFormatter>().Where(_ => _.SupportedMediaTypes.Count == 0))
                 {
                     outputFormatter.SupportedMediaTypes.Add(new MediaTypeHeaderValue("application/odata"));
+                }
+
+                foreach (var inputFormatter in options.InputFormatters.OfType<ODataInputFormatter>().Where(_ => _.SupportedMediaTypes.Count == 0))
+                {
+                    inputFormatter.SupportedMediaTypes.Add(new MediaTypeHeaderValue("application/odata"));
                 }
             });
         }
