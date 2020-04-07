@@ -25,7 +25,7 @@ namespace WeatherAPI2
         {
             services.AddOData();
             services.AddControllers();
-
+            services.AddApiVersioning();
             services.AddSwaggerDocument();
 
             SetOutputFormatters(services);
