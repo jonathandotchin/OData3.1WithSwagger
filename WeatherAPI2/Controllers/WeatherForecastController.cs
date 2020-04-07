@@ -29,7 +29,7 @@ namespace WeatherAPI2.Controllers
         /// </summary>
         /// <returns>A list of weather forecasts</returns>
         [HttpGet]
-        [EnableQuery]
+        [EnableQuery(PageSize = 3)]
         public IEnumerable<WeatherForecast> Get()
         {
             var rng = new Random();
@@ -37,7 +37,8 @@ namespace WeatherAPI2.Controllers
             {
                 Date = DateTime.Now.AddDays(index),
                 TemperatureC = rng.Next(-20, 55),
-                Summary = Summaries[rng.Next(Summaries.Length)]
+                Summary = Summaries[rng.Next(Summaries.Length)],
+                SkyId = 1
             })
             .ToArray();
         }

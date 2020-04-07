@@ -60,6 +60,7 @@ namespace WeatherAPI2
         {
             var builder = new ODataConventionModelBuilder();
             builder.EntitySet<WeatherForecast>("WeatherForecast");
+            builder.EntitySet<Sky>("Sky");
             return builder.GetEdmModel();
         }
 
@@ -67,15 +68,6 @@ namespace WeatherAPI2
         {
             services.AddMvcCore(options =>
             {
-                //IEnumerable<ODataOutputFormatter> outputFormatters =
-                //    options.OutputFormatters.OfType<ODataOutputFormatter>()
-                //        .Where(foramtter => foramtter.SupportedMediaTypes.Count == 0);
-
-                //foreach (var outputFormatter in outputFormatters)
-                //{
-                //    outputFormatter.SupportedMediaTypes.Add(new MediaTypeHeaderValue("application/odata"));
-                //}
-
                 foreach (var outputFormatter in options.OutputFormatters.OfType<ODataOutputFormatter>().Where(_ => _.SupportedMediaTypes.Count == 0))
                 {
                     outputFormatter.SupportedMediaTypes.Add(new MediaTypeHeaderValue("application/odata"));
