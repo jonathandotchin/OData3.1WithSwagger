@@ -7,7 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace WeatherAPI2.Controllers
 {
-    [Route("api/{version:apiVersion}/[controller]")]
+    [Route("api/v{version:apiVersion}/[controller]")]
+    //[Route("api/[controller]")]
     [ApiController]
     [ApiVersion("1")]
     public class InventoryController : ControllerBase

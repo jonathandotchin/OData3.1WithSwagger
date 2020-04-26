@@ -12,6 +12,9 @@ using Microsoft.OData.Edm;
 
 namespace WeatherAPI2
 {
+    using Microsoft.AspNetCore.Mvc;
+    using Microsoft.AspNetCore.Mvc.Versioning;
+
     public class Startup
     {
         public Startup(IConfiguration configuration)
@@ -27,8 +30,33 @@ namespace WeatherAPI2
             services.AddControllers();
             services.AddApiVersioning();
             services.AddSwaggerDocument();
+            services.AddMvcCore(options =>
+            {
+                foreach (var outputFormatter in options.OutputFormatters.OfType<ODataOutputFormatter>()
+                    .Where(_ => _.SupportedMediaTypes.Count == 0))
+                {
+                    outputFormatter.SupportedMediaTypes.Add(new MediaTypeHeaderValue("application/odata"));
+                }
 
-            SetOutputFormatters(services);
+                foreach (var inputFormatter in options.InputFormatters.OfType<ODataInputFormatter>()
+                    .Where(_ => _.SupportedMediaTypes.Count == 0))
+                {
+                    inputFormatter.SupportedMediaTypes.Add(new MediaTypeHeaderValue("application/odata"));
+                }
+            });
+            /*
+            services.AddApiVersioning(options =>
+            {
+                options.AssumeDefaultVersionWhenUnspecified = true;
+                options.ApiVersionReader = new UrlSegmentApiVersionReader();
+                options.DefaultApiVersion = new Microsoft.AspNetCore.Mvc.ApiVersion(1, 0);
+            });
+            services.AddVersionedApiExplorer(options =>
+            {
+                options.GroupNameFormat = "v'VVV'";
+                options.SubstituteApiVersionInUrl = true;
+            });
+            */
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -62,22 +90,6 @@ namespace WeatherAPI2
             builder.EntitySet<WeatherForecast>("WeatherForecast");
             builder.EntitySet<Sky>("Sky");
             return builder.GetEdmModel();
-        }
-
-        private static void SetOutputFormatters(IServiceCollection services)
-        {
-            services.AddMvcCore(options =>
-            {
-                foreach (var outputFormatter in options.OutputFormatters.OfType<ODataOutputFormatter>().Where(_ => _.SupportedMediaTypes.Count == 0))
-                {
-                    outputFormatter.SupportedMediaTypes.Add(new MediaTypeHeaderValue("application/odata"));
-                }
-
-                foreach (var inputFormatter in options.InputFormatters.OfType<ODataInputFormatter>().Where(_ => _.SupportedMediaTypes.Count == 0))
-                {
-                    inputFormatter.SupportedMediaTypes.Add(new MediaTypeHeaderValue("application/odata"));
-                }
-            });
         }
     }
 }
